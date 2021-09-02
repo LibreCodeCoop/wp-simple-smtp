@@ -4,6 +4,7 @@ Simple plugin to use SMTP on any WordPress instance.
 
 ## Using environments
 
+```bash
 WORDPRESS_CONFIG_EXTRA="
 define( 'SMTP_USER',     'user@example.coop' );  // Username to use for SMTP authentication
 define( 'SMTP_PASS',     'password-here' );      // Password to use for SMTP authentication
@@ -19,3 +20,4 @@ define( 'SMTP_VERIFY_PEER', false );
 define( 'SMTP_VERIFY_PEER_NAME', false );
 define( 'SMTP_ALLOW_SELF_SIGNED', true );
 "
+```
