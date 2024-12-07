@@ -75,8 +75,8 @@ add_action('admin_menu', 'wpss_add_settings_page');
 
 function wpss_add_settings_page() {
     add_options_page(
-        'Configurações WP Simple SMTP',
-        'WP Simple SMTP',
+        'Settings Simple SMTP',
+        'Simple SMTP',
         'manage_options',
         'wpss-settings',
         'wpss_render_settings_page'
@@ -135,7 +135,7 @@ function wpss_render_settings_page() {
     ?>
 
     <div class="wrap">
-        <h1>Settings WP Simple SMTP</h1>
+        <h1>Settings Simple SMTP</h1>
         <form method="post" action="">
             <?php wp_nonce_field('wpss_settings_nonce', 'wpss_nonce_field'); ?>
             <table class="form-table">
@@ -181,7 +181,7 @@ function wpss_render_settings_page() {
     if (isset($_POST['wpss_test_email'])) {
         $to = sanitize_email($_POST['wpss_test_email_to']);
         $subject = 'Test Email';
-        $message = 'This is a test email sent from WP Simple SMTP.';
+        $message = 'This is a test email sent from Simple SMTP.';
         $headers = ['Content-Type: text/html; charset=UTF-8'];
 
         if (wp_mail($to, $subject, $message, $headers)) {
