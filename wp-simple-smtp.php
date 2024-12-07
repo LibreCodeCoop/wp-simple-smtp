@@ -25,30 +25,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 if ( !function_exists('librecode_simple_smtp_mail_sender') ) {
-	add_action( 'phpmailer_init', 'librecode_simple_smtp_mail_sender' );
-	function librecode_simple_smtp_mail_sender( $phpmailer ) {
-		$phpmailer->isSMTP();
-		$phpmailer->XMailer    = get_option('smtp_xmailer');
-		$phpmailer->Hostname   = get_option('smtp_hostname');
-		$phpmailer->Host       = get_option('smtp_host');
-		$phpmailer->SMTPAuth   = get_option('smtp_auth');
-		$phpmailer->Port       = get_option('smtp_port');
-		$phpmailer->Username   = get_option('smtp_user');
-		$phpmailer->Password   = get_option('smtp_pass');
-		$phpmailer->SMTPSecure = get_option('smtp_secure');
-		$phpmailer->From       = get_option('smtp_from');
-		$phpmailer->FromName   = get_option('smtp_name');
-		if (get_option('smtp_verify_peer')) {
-			$phpmailer->SMTPOptions['ssl']['verify_peer'] = get_option('smtp_verify_peer');
-		}
-		if (get_option('smtp_verify_peer_name')) {
-			$phpmailer->SMTPOptions['ssl']['verify_peer_name'] = get_option('smtp_verify_peer_name');
-		}
-		if (get_option('smtp_allow_self_signed')) {
-			$phpmailer->SMTPOptions['ssl']['allow_self_signed'] = get_option('smtp_allow_self_signed');
-		}
+    add_action( 'phpmailer_init', 'librecode_simple_smtp_mail_sender' );
+    function librecode_simple_smtp_mail_sender( $phpmailer ) {
+        $phpmailer->isSMTP();
+        $phpmailer->XMailer    = get_option('smtp_xmailer');
+        $phpmailer->Hostname   = get_option('smtp_hostname');
+        $phpmailer->Host       = get_option('smtp_host');
+        $phpmailer->SMTPAuth   = get_option('smtp_auth');
+        $phpmailer->Port       = get_option('smtp_port');
+        $phpmailer->Username   = get_option('smtp_user');
+        $phpmailer->Password   = get_option('smtp_pass');
+        $phpmailer->SMTPSecure = get_option('smtp_secure');
+        $phpmailer->From       = get_option('smtp_from');
+        $phpmailer->FromName   = get_option('smtp_name');
+        if (get_option('smtp_verify_peer')) {
+            $phpmailer->SMTPOptions['ssl']['verify_peer'] = get_option('smtp_verify_peer');
+        }
+        if (get_option('smtp_verify_peer_name')) {
+            $phpmailer->SMTPOptions['ssl']['verify_peer_name'] = get_option('smtp_verify_peer_name');
+        }
+        if (get_option('smtp_allow_self_signed')) {
+            $phpmailer->SMTPOptions['ssl']['allow_self_signed'] = get_option('smtp_allow_self_signed');
+        }
 
-	}
+    }
+
+    add_filter('wp_mail_from', 'wpss_change_mail_from');
+    function wpss_change_mail_from($original_email_address) {
+        $from_email = get_option('smtp_from');
+        return $from_email ? $from_email : $original_email_address;
+    }
+
+    add_filter('wp_mail_from_name', 'wpss_change_mail_from_name');
+    function wpss_change_mail_from_name($original_from_name) {
+        $from_name = get_option('smtp_name');
+        return $from_name ? $from_name : $original_from_name;
+    }
 }
 
 add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'wpss_add_settings_link');
@@ -123,7 +135,7 @@ function wpss_render_settings_page() {
     ?>
 
     <div class="wrap">
-        <h1>Configurações WP Simple SMTP</h1>
+        <h1>Settings WP Simple SMTP</h1>
         <form method="post" action="">
             <?php wp_nonce_field('wpss_settings_nonce', 'wpss_nonce_field'); ?>
             <table class="form-table">
@@ -141,9 +153,54 @@ function wpss_render_settings_page() {
                     </tr>
                 <?php endforeach; ?>
             </table>
-            <?php submit_button('Salvar Configurações', 'primary', 'wpss_save_settings'); ?>
+            <?php submit_button('Save settings', 'primary', 'wpss_save_settings'); ?>
+        </form>
+    </div>
+    <div class="wrap">
+        <h1>Test Email</h1>
+        <p>After saving your settings, you can test email delivery:</p>
+        <form method="post" action="">
+            <?php wp_nonce_field('wpss_settings_nonce', 'wpss_nonce_field'); ?>
+            <table class="form-table">
+                <tr>
+                    <th scope="row">
+                        <label for="wpss_test_email_to">Recipient Email Address</label>
+                    </th>
+                    <td>
+                        <input type="email" name="wpss_test_email_to" id="wpss_test_email_to" class="regular-text" required>
+                        <p class="description">Enter the email address to send the test email.</p>
+                    </td>
+                </tr>
+            </table>
+            <?php submit_button('Send Test Email', 'primary', 'wpss_test_email'); ?>
         </form>
     </div>
 
     <?php
+
+    if (isset($_POST['wpss_test_email'])) {
+        $to = sanitize_email($_POST['wpss_test_email_to']);
+        $subject = 'Test Email';
+        $message = 'This is a test email sent from WP Simple SMTP.';
+        $headers = ['Content-Type: text/html; charset=UTF-8'];
+
+        if (wp_mail($to, $subject, $message, $headers)) {
+            echo '<div class="updated"><p>Email sent successfully to ' . esc_html($to) . '.</p></div>';
+        } else {
+            echo '<div class="error"><p>Failed to send email. Please check your SMTP settings.</p></div>';
+        }
+    }
+}
+
+add_action('admin_menu', 'wpss_add_test_email_page');
+
+function wpss_add_test_email_page() {
+    add_submenu_page(
+        null,
+        'Test Email',
+        'Test Email',
+        'manage_options',
+        'wpss-test-email',
+        'wpss_render_test_email_page'
+    );
 }
