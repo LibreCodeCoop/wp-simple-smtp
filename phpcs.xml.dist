@@ -35,6 +35,7 @@
         <properties>
             <property name="prefixes" type="array">
                 <element value="librecode_simple_smtp"/>
+                <element value="LibreCodeCoop\SimpleSmtp"/>
             </property>
         </properties>
         <exclude-pattern>/tests/*</exclude-pattern>

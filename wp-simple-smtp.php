@@ -23,38 +23,28 @@
  * GitHub Plugin URI: https://github.com/librecodecoop/wp-simple-smtp
  */
 
+use LibreCodeCoop\SimpleSmtp\OptionValue;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
+
+require_once __DIR__ . '/src/OptionValue.php';
+
 if ( !function_exists('librecode_simple_smtp_mail_sender') ) {
     add_action( 'phpmailer_init', 'librecode_simple_smtp_mail_sender' );
     function librecode_simple_smtp_mail_sender( $phpmailer ) {
-        $smtp_auth = get_option('smtp_auth');
-        if (!is_bool($smtp_auth)) {
-            if (is_numeric($smtp_auth)) {
-                $smtp_auth = (bool) $smtp_auth;
-            } elseif (is_string($smtp_auth)) {
-                $smtp_auth = strtoupper($smtp_auth);
-                $smtp_auth = in_array($smtp_auth, ['TRUE', 'ON', '1', 'OK']);
-            } else {
-                $smtp_auth = false;
-            }
-        }
         $phpmailer->isSMTP();
         $phpmailer->XMailer    = get_option('smtp_xmailer');
         $phpmailer->Hostname   = get_option('smtp_hostname');
         $phpmailer->Host       = get_option('smtp_host');
-        $phpmailer->SMTPAuth   = $smtp_auth;
+        $phpmailer->SMTPAuth   = OptionValue::smtp_auth(get_option('smtp_auth'));
         $phpmailer->Port       = get_option('smtp_port');
         $phpmailer->Username   = get_option('smtp_user');
         $phpmailer->Password   = get_option('smtp_pass');
         $phpmailer->SMTPSecure = get_option('smtp_secure');
         foreach (['verify_peer', 'verify_peer_name', 'allow_self_signed'] as $ssl_option) {
-            $value = get_option('smtp_' . $ssl_option);
-            if ('' === $value || false === $value) {
-                continue;
-            }
-            $enabled = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            $enabled = OptionValue::ssl(get_option('smtp_' . $ssl_option));
             if (null !== $enabled) {
                 $phpmailer->SMTPOptions['ssl'][$ssl_option] = $enabled;
             }

@@ -7,6 +7,7 @@ parameters:
     level: 5
     paths:
         - wp-simple-smtp.php
+        - src
         - tests
     bootstrapFiles:
         - vendor-bin/phpunit/vendor/autoload.php
