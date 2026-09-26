@@ -1,0 +1,62 @@
+name: PHPUnit
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  php-matrix:
+    name: PHP matrix
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.php-matrix.outputs.versions }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: typisttech/php-matrix-action@0545a7d54db2c7be158b615b1e7f458ae6e99ad3 # v3.0.2
+        id: php-matrix
+
+  phpunit:
+    name: PHPUnit (PHP ${{ matrix.php }})
+    needs: php-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ${{ fromJSON(needs.php-matrix.outputs.versions) }}
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      WP_TESTS_DB_HOST: 127.0.0.1
+      WP_TESTS_DB_NAME: wordpress_test
+      WP_TESTS_DB_USER: root
+      WP_TESTS_DB_PASSWORD: root
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mysqli
+          coverage: none
+          tools: composer
+
+      - uses: ramsey/composer-install@a8d0d959dab41457692a5e2041bd9b757a119e3f # 3.2.1
+
+      - run: composer test
