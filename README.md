@@ -41,3 +41,20 @@ docker exec wordpress-docker-mariadb-1 \
 docker exec -w /var/www/html/wp-content/plugins/wp-simple-smtp \
   wordpress-docker-wordpress-1 composer test
 ```
+
+### Browser tests
+
+`tests/E2E/WpSimpleSmtp.spec.ts` covers the plugin end to end against a Mailpit
+server that requires SMTP authentication: mail WordPress sends on its own, the
+test email from the settings page, and a password with a quote that keeps working
+after the settings are saved again.
+
+They need Docker and Node.js:
+
+```bash
+npm ci
+npx playwright install chromium
+npm run env:start    # WordPress on :8889, Mailpit on :8026
+npm run test:e2e
+npm run env:stop
+```

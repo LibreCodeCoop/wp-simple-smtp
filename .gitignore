@@ -1,3 +1,6 @@
 /vendor/
 /vendor-bin/*/vendor/
 /.phpunit.result.cache
+/node_modules/
+/tests/E2E/.results/
+/tests/E2E/.report/
