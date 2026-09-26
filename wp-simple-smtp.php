@@ -49,8 +49,6 @@ if ( !function_exists('librecode_simple_smtp_mail_sender') ) {
         $phpmailer->Username   = get_option('smtp_user');
         $phpmailer->Password   = get_option('smtp_pass');
         $phpmailer->SMTPSecure = get_option('smtp_secure');
-        $phpmailer->From       = get_option('smtp_from');
-        $phpmailer->FromName   = get_option('smtp_name');
         if (get_option('smtp_verify_peer')) {
             $phpmailer->SMTPOptions['ssl']['verify_peer'] = get_option('smtp_verify_peer');
         }

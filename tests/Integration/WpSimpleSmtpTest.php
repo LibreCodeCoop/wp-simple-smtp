@@ -98,6 +98,20 @@ final class WpSimpleSmtpTest extends WP_UnitTestCase {
 		$this->assertSame( 'LibreSign', $mailer->FromName );
 	}
 
+	public function test_keeps_the_wordpress_sender_when_none_is_saved() {
+		$this->save_settings(
+			array(
+				'smtp_from' => '',
+				'smtp_name' => '',
+			) + self::SETTINGS
+		);
+
+		$mailer = $this->send_mail();
+
+		$this->assertSame( 'wordpress@example.org', $mailer->From );
+		$this->assertSame( 'WordPress', $mailer->FromName );
+	}
+
 	/**
 	 * @dataProvider provide_smtp_auth_values
 	 */
