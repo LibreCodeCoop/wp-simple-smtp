@@ -112,8 +112,7 @@ function librecode_simple_smtp_render_settings_page() {
         ];
 
         foreach ($options as $option) {
-            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-            $value = sanitize_text_field($_POST[$option] ?? '');
+            $value = sanitize_text_field(wp_unslash($_POST[$option] ?? ''));
             update_option($option, $value);
         }
 
