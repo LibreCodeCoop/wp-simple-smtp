@@ -11,6 +11,11 @@
         "roots/wordpress": "^7.0",
         "wp-phpunit/wp-phpunit": "^7.0"
     },
+    "autoload": {
+        "psr-4": {
+            "LibreCodeCoop\\SimpleSmtp\\": "src/"
+        }
+    },
     "autoload-dev": {
         "psr-4": {
             "LibreCodeCoop\\SimpleSmtp\\Tests\\": "tests/"
@@ -38,8 +43,10 @@
         "cs:fix": "phpcbf",
         "stan": "phpstan analyse --memory-limit=1G",
         "test": [
+            "@test:unit",
             "@test:integration"
         ],
+        "test:unit": "phpunit",
         "test:integration": "phpunit -c phpunit-integration.xml.dist",
         "ci": [
             "@lint",
