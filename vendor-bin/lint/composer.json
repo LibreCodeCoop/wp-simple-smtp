@@ -1,0 +1,11 @@
+{
+    "require-dev": {
+        "php-parallel-lint/php-parallel-lint": "^1.4"
+    },
+    "config": {
+        "platform": {
+            "php": "8.3"
+        },
+        "sort-packages": true
+    }
+}

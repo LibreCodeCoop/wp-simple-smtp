@@ -1,0 +1,37 @@
+{
+    "name": "librecodecoop/wp-simple-smtp",
+    "description": "Send WordPress mail through an SMTP server",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=8.3 <8.6"
+    },
+    "require-dev": {
+        "bamarni/composer-bin-plugin": "^1.8"
+    },
+    "config": {
+        "platform": {
+            "php": "8.3"
+        },
+        "allow-plugins": {
+            "bamarni/composer-bin-plugin": true
+        }
+    },
+    "extra": {
+        "bamarni-bin": {
+            "bin-links": true,
+            "forward-command": true
+        }
+    },
+    "scripts": {
+        "lint": "parallel-lint --exclude vendor --exclude vendor-bin .",
+        "cs": "phpcs",
+        "cs:fix": "phpcbf",
+        "stan": "phpstan analyse --memory-limit=1G",
+        "ci": [
+            "@lint",
+            "@cs",
+            "@stan"
+        ]
+    }
+}
