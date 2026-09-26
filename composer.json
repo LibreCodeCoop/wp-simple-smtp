@@ -7,31 +7,45 @@
         "php": ">=8.3 <8.6"
     },
     "require-dev": {
-        "bamarni/composer-bin-plugin": "^1.8"
+        "bamarni/composer-bin-plugin": "^1.8",
+        "roots/wordpress": "^7.0",
+        "wp-phpunit/wp-phpunit": "^7.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LibreCodeCoop\\SimpleSmtp\\Tests\\": "tests/"
+        }
     },
     "config": {
         "platform": {
             "php": "8.3"
         },
         "allow-plugins": {
-            "bamarni/composer-bin-plugin": true
+            "bamarni/composer-bin-plugin": true,
+            "roots/wordpress-core-installer": true
         }
     },
     "extra": {
         "bamarni-bin": {
             "bin-links": true,
             "forward-command": true
-        }
+        },
+        "wordpress-install-dir": "vendor/wordpress"
     },
     "scripts": {
         "lint": "parallel-lint --exclude vendor --exclude vendor-bin .",
         "cs": "phpcs",
         "cs:fix": "phpcbf",
         "stan": "phpstan analyse --memory-limit=1G",
+        "test": [
+            "@test:integration"
+        ],
+        "test:integration": "phpunit -c phpunit-integration.xml.dist",
         "ci": [
             "@lint",
             "@cs",
-            "@stan"
+            "@stan",
+            "@test"
         ]
     }
 }
