@@ -49,16 +49,15 @@ if ( !function_exists('librecode_simple_smtp_mail_sender') ) {
         $phpmailer->Username   = get_option('smtp_user');
         $phpmailer->Password   = get_option('smtp_pass');
         $phpmailer->SMTPSecure = get_option('smtp_secure');
-        $phpmailer->From       = get_option('smtp_from');
-        $phpmailer->FromName   = get_option('smtp_name');
-        if (get_option('smtp_verify_peer')) {
-            $phpmailer->SMTPOptions['ssl']['verify_peer'] = get_option('smtp_verify_peer');
-        }
-        if (get_option('smtp_verify_peer_name')) {
-            $phpmailer->SMTPOptions['ssl']['verify_peer_name'] = get_option('smtp_verify_peer_name');
-        }
-        if (get_option('smtp_allow_self_signed')) {
-            $phpmailer->SMTPOptions['ssl']['allow_self_signed'] = get_option('smtp_allow_self_signed');
+        foreach (['verify_peer', 'verify_peer_name', 'allow_self_signed'] as $ssl_option) {
+            $value = get_option('smtp_' . $ssl_option);
+            if ('' === $value || false === $value) {
+                continue;
+            }
+            $enabled = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            if (null !== $enabled) {
+                $phpmailer->SMTPOptions['ssl'][$ssl_option] = $enabled;
+            }
         }
 
     }
