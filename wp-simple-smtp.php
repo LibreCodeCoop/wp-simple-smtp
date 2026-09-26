@@ -206,16 +206,3 @@ function librecode_simple_smtp_render_settings_page() {
         }
     }
 }
-
-add_action('admin_menu', 'librecode_simple_smtp_add_test_email_page');
-
-function librecode_simple_smtp_add_test_email_page() {
-    add_submenu_page(
-        null,
-        'Test Email',
-        'Test Email',
-        'manage_options',
-        'wpss-test-email',
-        'librecode_simple_smtp_render_test_email_page'
-    );
-}
