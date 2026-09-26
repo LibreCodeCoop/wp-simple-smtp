@@ -192,8 +192,8 @@ function librecode_simple_smtp_render_settings_page() {
     <?php
 
     if (isset($_POST['wpss_test_email'])) {
-        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-        $to = sanitize_email($_POST['wpss_test_email_to']);
+        check_admin_referer('wpss_settings_nonce', 'wpss_nonce_field');
+        $to = sanitize_email(wp_unslash($_POST['wpss_test_email_to'] ?? ''));
         $subject = 'Test Email';
         $message = 'This is a test email sent from Simple SMTP.';
         $headers = ['Content-Type: text/html; charset=UTF-8'];
