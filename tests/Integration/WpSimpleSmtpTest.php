@@ -171,8 +171,30 @@ final class WpSimpleSmtpTest extends WP_UnitTestCase {
 	public static function provide_ssl_option_values() {
 		yield 'one'   => array( '1', true );
 		yield 'true'  => array( 'true', true );
+		yield 'yes'   => array( 'yes', true );
 		yield 'zero'  => array( '0', false );
 		yield 'false' => array( 'false', false );
+		yield 'no'    => array( 'no', false );
+	}
+
+	/**
+	 * @dataProvider provide_unrecognized_ssl_option_values
+	 */
+	public function test_keeps_the_default_ssl_options_for_an_unrecognized_value( $value ) {
+		$this->save_settings(
+			array(
+				'smtp_verify_peer'       => $value,
+				'smtp_verify_peer_name'  => $value,
+				'smtp_allow_self_signed' => $value,
+			) + self::SETTINGS
+		);
+
+		$this->assertSame( array(), $this->send_mail()->SMTPOptions );
+	}
+
+	public static function provide_unrecognized_ssl_option_values() {
+		yield 'sim'     => array( 'sim' );
+		yield 'enabled' => array( 'enabled' );
 	}
 
 	/**
