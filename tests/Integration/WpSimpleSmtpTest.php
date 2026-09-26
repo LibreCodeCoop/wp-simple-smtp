@@ -147,6 +147,35 @@ final class WpSimpleSmtpTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @dataProvider provide_ssl_option_values
+	 */
+	public function test_reads_the_ssl_options_as_booleans( $value, $expected ) {
+		$this->save_settings(
+			array(
+				'smtp_verify_peer'       => $value,
+				'smtp_verify_peer_name'  => $value,
+				'smtp_allow_self_signed' => $value,
+			) + self::SETTINGS
+		);
+
+		$expected_options = array(
+			'ssl' => array(
+				'verify_peer'       => $expected,
+				'verify_peer_name'  => $expected,
+				'allow_self_signed' => $expected,
+			),
+		);
+		$this->assertSame( $expected_options, $this->send_mail()->SMTPOptions );
+	}
+
+	public static function provide_ssl_option_values() {
+		yield 'one'   => array( '1', true );
+		yield 'true'  => array( 'true', true );
+		yield 'zero'  => array( '0', false );
+		yield 'false' => array( 'false', false );
+	}
+
+	/**
 	 * @dataProvider provide_mail_from_filters
 	 */
 	public function test_replaces_the_sender_with_the_saved_one( $filter, $option ) {

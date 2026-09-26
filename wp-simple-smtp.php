@@ -27,36 +27,35 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 if ( !function_exists('librecode_simple_smtp_mail_sender') ) {
+    function librecode_simple_smtp_to_bool( $value ) {
+        if (is_bool($value)) {
+            return $value;
+        }
+        if (is_numeric($value)) {
+            return (bool) $value;
+        }
+        if (is_string($value)) {
+            return in_array(strtoupper($value), ['TRUE', 'ON', '1', 'OK']);
+        }
+        return false;
+    }
+
     add_action( 'phpmailer_init', 'librecode_simple_smtp_mail_sender' );
     function librecode_simple_smtp_mail_sender( $phpmailer ) {
-        $smtp_auth = get_option('smtp_auth');
-        if (!is_bool($smtp_auth)) {
-            if (is_numeric($smtp_auth)) {
-                $smtp_auth = (bool) $smtp_auth;
-            } elseif (is_string($smtp_auth)) {
-                $smtp_auth = strtoupper($smtp_auth);
-                $smtp_auth = in_array($smtp_auth, ['TRUE', 'ON', '1', 'OK']);
-            } else {
-                $smtp_auth = false;
-            }
-        }
         $phpmailer->isSMTP();
         $phpmailer->XMailer    = get_option('smtp_xmailer');
         $phpmailer->Hostname   = get_option('smtp_hostname');
         $phpmailer->Host       = get_option('smtp_host');
-        $phpmailer->SMTPAuth   = $smtp_auth;
+        $phpmailer->SMTPAuth   = librecode_simple_smtp_to_bool(get_option('smtp_auth'));
         $phpmailer->Port       = get_option('smtp_port');
         $phpmailer->Username   = get_option('smtp_user');
         $phpmailer->Password   = get_option('smtp_pass');
         $phpmailer->SMTPSecure = get_option('smtp_secure');
-        if (get_option('smtp_verify_peer')) {
-            $phpmailer->SMTPOptions['ssl']['verify_peer'] = get_option('smtp_verify_peer');
-        }
-        if (get_option('smtp_verify_peer_name')) {
-            $phpmailer->SMTPOptions['ssl']['verify_peer_name'] = get_option('smtp_verify_peer_name');
-        }
-        if (get_option('smtp_allow_self_signed')) {
-            $phpmailer->SMTPOptions['ssl']['allow_self_signed'] = get_option('smtp_allow_self_signed');
+        foreach (['verify_peer', 'verify_peer_name', 'allow_self_signed'] as $ssl_option) {
+            $value = get_option('smtp_' . $ssl_option);
+            if ('' !== $value && false !== $value) {
+                $phpmailer->SMTPOptions['ssl'][$ssl_option] = librecode_simple_smtp_to_bool($value);
+            }
         }
 
     }
