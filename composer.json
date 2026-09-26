@@ -48,6 +48,10 @@
         ],
         "test:unit": "phpunit",
         "test:integration": "phpunit -c phpunit-integration.xml.dist",
+        "coverage": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit -c phpunit-coverage.xml.dist --coverage-clover=tests/.coverage/clover.xml"
+        ],
         "ci": [
             "@lint",
             "@cs",
