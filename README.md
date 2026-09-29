@@ -16,7 +16,18 @@ composer cs    # PHPCS
 composer stan  # PHPStan
 composer test  # PHPUnit
 composer ci    # all of the above, in this order
+composer coverage  # PHPUnit with a coverage report for octocov
 ```
+
+### Layout and coverage
+
+Every file in `src/`, and the main plugin file, needs a test named after it.
+`tests/Unit/StructureTest.php` enforces this and also fails on a test whose
+source file no longer exists.
+
+`composer coverage` writes `tests/.coverage/clover.xml`. In CI,
+[octocov](https://github.com/k1LoW/octocov) fails the run when line coverage
+is below 95% or below the last report of `main` (`.octocov.yml`).
 
 ### Tests
 

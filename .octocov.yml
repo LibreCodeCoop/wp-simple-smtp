@@ -1,0 +1,13 @@
+coverage:
+  paths:
+    - tests/.coverage/clover.xml
+  acceptable: current >= 95% && current >= prev
+
+diff:
+  datastores:
+    - artifact://${GITHUB_REPOSITORY}
+
+report:
+  if: is_default_branch
+  datastores:
+    - artifact://${GITHUB_REPOSITORY}
