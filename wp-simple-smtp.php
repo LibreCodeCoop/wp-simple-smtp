@@ -102,6 +102,9 @@ function librecode_simple_smtp_render_settings_page() {
 
         foreach ($options as $option) {
             $value = sanitize_text_field(wp_unslash($_POST[$option] ?? ''));
+            if ('smtp_pass' === $option && '' === $value) {
+                continue;
+            }
             update_option($option, $value);
         }
 
@@ -125,7 +128,7 @@ function librecode_simple_smtp_render_settings_page() {
         'smtp_auth' => 'Whether to use SMTP authentication (true|false).',
         'smtp_port' => 'SMTP port number - typically 25, 465, or 587.',
         'smtp_user' => 'Username to use for SMTP authentication.',
-        'smtp_pass' => 'Password to use for SMTP authentication.',
+        'smtp_pass' => 'Password to use for SMTP authentication. Leave empty to keep the saved one.',
         'smtp_secure' => 'Encryption system to use - "ssl" or "tls".',
         'smtp_from' => 'The email address to use as the "From" address.',
         'smtp_name' => 'The name to use as the "From" name.',
@@ -146,7 +149,7 @@ function librecode_simple_smtp_render_settings_page() {
                         <th scope="row"><label for="<?php echo esc_attr($key); ?>"><?php echo esc_html($key); ?></label></th>
                         <td>
                             <?php if ($key === 'smtp_pass'): ?>
-                                <input type="password" name="<?php echo esc_attr($key); ?>" id="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($value); ?>" class="regular-text">
+                                <input type="password" name="<?php echo esc_attr($key); ?>" id="<?php echo esc_attr($key); ?>" value="" autocomplete="new-password" class="regular-text">
                             <?php else: ?>
                                 <input type="text" name="<?php echo esc_attr($key); ?>" id="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($value); ?>" class="regular-text">
                             <?php endif; ?>

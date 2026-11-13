@@ -264,7 +264,25 @@ final class WpSimpleSmtpTest extends WP_UnitTestCase {
 		$output = $this->submit_settings_page( array() );
 
 		$this->assertStringContainsString( 'name="smtp_name" id="smtp_name" value="Libre &quot;Sign&quot;"', $output );
-		$this->assertStringContainsString( '<input type="password" name="smtp_pass" id="smtp_pass" value="secret"', $output );
+	}
+
+	public function test_does_not_send_the_saved_password_back_to_the_browser() {
+		$this->log_in_as( 'administrator' );
+		$this->save_settings( self::SETTINGS );
+
+		$output = $this->submit_settings_page( array() );
+
+		$this->assertStringContainsString( '<input type="password" name="smtp_pass" id="smtp_pass" value=""', $output );
+		$this->assertStringNotContainsString( 'secret', $output );
+	}
+
+	public function test_keeps_the_saved_password_when_the_field_is_left_empty() {
+		$this->log_in_as( 'administrator' );
+		update_option( 'smtp_pass', 'secret' );
+
+		$this->submit_settings_page( $this->settings_form( array( 'smtp_pass' => '' ) + self::SETTINGS ) );
+
+		$this->assertSame( 'secret', get_option( 'smtp_pass' ) );
 	}
 
 	public function test_saves_every_submitted_setting() {
