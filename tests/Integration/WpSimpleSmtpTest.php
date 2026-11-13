@@ -198,6 +198,31 @@ final class WpSimpleSmtpTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @dataProvider provide_smtp_secure_option_values
+	 */
+	public function test_reads_the_smtp_secure_option( $value, $expected ) {
+		$this->save_settings( array( 'smtp_secure' => $value ) + self::SETTINGS );
+
+		$this->assertSame( $expected, $this->send_mail()->SMTPSecure );
+	}
+
+	public static function provide_smtp_secure_option_values() {
+		yield 'tls'                     => array( 'tls', 'tls' );
+		yield 'tls in uppercase'        => array( 'TLS', 'tls' );
+		yield 'ssl in uppercase'        => array( 'SSL', 'ssl' );
+		yield 'empty'                   => array( '', '' );
+		yield 'starttls requires tls'   => array( 'STARTTLS', 'tls' );
+		yield 'ssl or tls requires tls' => array( 'SSL/TLS', 'tls' );
+	}
+
+	public function test_reads_a_missing_smtp_secure_option_as_no_encryption() {
+		$this->save_settings( self::SETTINGS );
+		delete_option( 'smtp_secure' );
+
+		$this->assertSame( '', $this->send_mail()->SMTPSecure );
+	}
+
+	/**
 	 * @dataProvider provide_mail_from_filters
 	 */
 	public function test_replaces_the_sender_with_the_saved_one( $filter, $option ) {
@@ -317,6 +342,25 @@ final class WpSimpleSmtpTest extends WP_UnitTestCase {
 
 		$this->assertSame( 'pa\'ss\\word', get_option( 'smtp_pass' ) );
 		$this->assertSame( 'O\'Brien', get_option( 'smtp_name' ) );
+	}
+
+	public function test_saves_the_smtp_secure_option_in_lowercase() {
+		$this->log_in_as( 'administrator' );
+
+		$this->submit_settings_page( $this->settings_form( array( 'smtp_secure' => 'TLS' ) + self::SETTINGS ) );
+
+		$this->assertSame( 'tls', get_option( 'smtp_secure' ) );
+	}
+
+	public function test_refuses_to_save_an_unsupported_smtp_secure_option() {
+		$this->log_in_as( 'administrator' );
+		update_option( 'smtp_secure', 'ssl' );
+
+		$output = $this->submit_settings_page( $this->settings_form( array( 'smtp_secure' => 'STARTTLS' ) + self::SETTINGS ) );
+
+		$this->assertStringContainsString( 'Unsupported smtp_secure value.', $output );
+		$this->assertSame( 'ssl', get_option( 'smtp_secure' ) );
+		$this->assertSame( 'mail.example.org', get_option( 'smtp_host' ) );
 	}
 
 	public function test_strips_tags_from_the_submitted_settings() {
