@@ -57,4 +57,27 @@ final class OptionValueTest extends TestCase {
 		yield 'enabled keeps default' => array( 'enabled', null );
 		yield 'ok keeps default'      => array( 'ok', null );
 	}
+
+	/**
+	 * @dataProvider provide_smtp_secure_values
+	 */
+	public function test_reads_the_smtp_encryption( $value, $expected ) {
+		$this->assertSame( $expected, OptionValue::smtp_secure( $value ) );
+	}
+
+	public static function provide_smtp_secure_values() {
+		yield 'tls'                  => array( 'tls', 'tls' );
+		yield 'ssl'                  => array( 'ssl', 'ssl' );
+		yield 'tls in uppercase'     => array( 'TLS', 'tls' );
+		yield 'ssl in uppercase'     => array( 'SSL', 'ssl' );
+		yield 'surrounding spaces'   => array( ' tls ', 'tls' );
+		yield 'empty'                => array( '', '' );
+		yield 'missing'              => array( false, '' );
+		yield 'null'                 => array( null, '' );
+		yield 'starttls'             => array( 'starttls', null );
+		yield 'starttls in capitals' => array( 'STARTTLS', null );
+		yield 'ssl or tls'           => array( 'SSL/TLS', null );
+		yield 'none'                 => array( 'none', null );
+		yield 'an array'             => array( array( 'tls' ), null );
+	}
 }
