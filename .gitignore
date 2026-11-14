@@ -1,2 +1,7 @@
 /vendor/
 /vendor-bin/*/vendor/
+/tests/.coverage/
+/.phpunit.result.cache
+/node_modules/
+/tests/E2E/.results/
+/tests/E2E/.report/
