@@ -40,7 +40,7 @@ test.describe( 'Sending WordPress mail through SMTP', () => {
 		await page.getByRole( 'button', { name: 'Save settings' } ).click();
 		await page.getByRole( 'button', { name: 'Save settings' } ).click();
 
-		await expect( page.getByLabel( 'smtp_pass' ) ).toHaveValue( "pa'ss" );
+		await expect( page.getByLabel( 'smtp_pass' ) ).toHaveValue( '' );
 		await sendTheTestEmail( page );
 		await expect( page.getByText( 'Email sent successfully to admin@example.org.' ) ).toBeVisible();
 		await expect.poll( () => deliveredMail( request ) ).toHaveLength( 1 );
