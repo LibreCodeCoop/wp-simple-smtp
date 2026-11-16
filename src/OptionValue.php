@@ -23,4 +23,15 @@ final class OptionValue {
 		}
 		return filter_var( $value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
 	}
+
+	public static function smtp_secure( mixed $value ): ?string {
+		if ( false === $value || null === $value ) {
+			return '';
+		}
+		if ( ! is_string( $value ) ) {
+			return null;
+		}
+		$encryption = strtolower( trim( $value ) );
+		return in_array( $encryption, array( '', 'tls', 'ssl' ), true ) ? $encryption : null;
+	}
 }

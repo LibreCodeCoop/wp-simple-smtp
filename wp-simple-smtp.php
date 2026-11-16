@@ -42,7 +42,7 @@ if ( !function_exists('librecode_simple_smtp_mail_sender') ) {
         $phpmailer->Port       = get_option('smtp_port');
         $phpmailer->Username   = get_option('smtp_user');
         $phpmailer->Password   = get_option('smtp_pass');
-        $phpmailer->SMTPSecure = get_option('smtp_secure');
+        $phpmailer->SMTPSecure = OptionValue::smtp_secure(get_option('smtp_secure')) ?? 'tls';
         foreach (['verify_peer', 'verify_peer_name', 'allow_self_signed'] as $ssl_option) {
             $enabled = OptionValue::ssl(get_option('smtp_' . $ssl_option));
             if (null !== $enabled) {
@@ -102,6 +102,17 @@ function librecode_simple_smtp_render_settings_page() {
 
         foreach ($options as $option) {
             $value = sanitize_text_field(wp_unslash($_POST[$option] ?? ''));
+            if ('smtp_pass' === $option && '' === $value) {
+                continue;
+            }
+            if ('smtp_secure' === $option) {
+                $encryption = OptionValue::smtp_secure($value);
+                if (null === $encryption) {
+                    echo '<div class="error"><p>Unsupported smtp_secure value. Use "tls", "ssl" or leave it empty for no encryption. The previous value was kept.</p></div>';
+                    continue;
+                }
+                $value = $encryption;
+            }
             update_option($option, $value);
         }
 
@@ -125,8 +136,8 @@ function librecode_simple_smtp_render_settings_page() {
         'smtp_auth' => 'Whether to use SMTP authentication (true|false).',
         'smtp_port' => 'SMTP port number - typically 25, 465, or 587.',
         'smtp_user' => 'Username to use for SMTP authentication.',
-        'smtp_pass' => 'Password to use for SMTP authentication.',
-        'smtp_secure' => 'Encryption system to use - "ssl" or "tls".',
+        'smtp_pass' => 'Password to use for SMTP authentication. Leave empty to keep the saved one.',
+        'smtp_secure' => 'Encryption system to use - "ssl", "tls" or empty for none.',
         'smtp_from' => 'The email address to use as the "From" address.',
         'smtp_name' => 'The name to use as the "From" name.',
         'smtp_verify_peer' => 'Verify the SSL certificate of the server (true|false).',
@@ -146,7 +157,7 @@ function librecode_simple_smtp_render_settings_page() {
                         <th scope="row"><label for="<?php echo esc_attr($key); ?>"><?php echo esc_html($key); ?></label></th>
                         <td>
                             <?php if ($key === 'smtp_pass'): ?>
-                                <input type="password" name="<?php echo esc_attr($key); ?>" id="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($value); ?>" class="regular-text">
+                                <input type="password" name="<?php echo esc_attr($key); ?>" id="<?php echo esc_attr($key); ?>" value="" autocomplete="new-password" class="regular-text">
                             <?php else: ?>
                                 <input type="text" name="<?php echo esc_attr($key); ?>" id="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($value); ?>" class="regular-text">
                             <?php endif; ?>
